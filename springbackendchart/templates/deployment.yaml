@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "springbackendchart.fullname" . }}
+  labels:
+    {{- include "springbackendchart.labels" . | nindent 4 }}
+spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
+  selector:
+    matchLabels:
+      {{- include "springbackendchart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "springbackendchart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "springbackendchart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SPRING_DATASOURCE_USERNAME 
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.type.userpass.name }}
+                  key: {{ .Values.secret.type.userpass.key.username }}
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.type.userpass.name }}
+                  key: {{ .Values.secret.type.userpass.key.password }}
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.type.url.name }}
+                  key: {{ .Values.secret.type.url.key.url }}

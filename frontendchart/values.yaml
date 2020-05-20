@@ -1,0 +1,30 @@
+
+replicaCount: 1
+fullname: frontend
+
+image:
+  repository: frontend
+  imagename: frontend:latest
+  pullPolicy: Never
+  tag: latest
+
+service:
+  name: frontend-service-helm
+  type: NodePort
+  port: 80
+  targetPort: 80
+  nodePort: 30011
+
+resources:
+   limits:
+     cpu: 100m
+     memory: 128Mi
+   requests:
+     cpu: 100m
+     memory: 128Mi
+
+autoscaling:
+  enabled: false
+
+serviceAccount:
+  create: false

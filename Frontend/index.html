@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>FrontEnd</title>
+    </head>
+    <body>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <div id="app">
+        <button v-on:click="callBackend">Call backend</button>
+        {{message}}
+        </div>
+        <script>
+            //const axios = require('axios');
+            var app=new Vue(
+                {
+                    el: '#app',
+                    data: { 
+                        message: null
+                    },
+                    methods:
+                    {
+                        callBackend: function (req, response)
+                        {
+                            axios.get('http://192.168.99.101:30001/api/access')
+                            .then(response => (this.message = response))
+                        }
+                    }
+                }
+            )
+        </script>
+    </body>
+</html>
